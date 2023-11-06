@@ -22,11 +22,11 @@
                 <div class="container">
                     <div class="toDoList-content">
                         <div class="to-do-list">
-                            <div class="input"><input type="text" v-model="task" class="list"  placeholder="create a new task"/></div> <!-- class:white -->
+                            <div class="input"><input type="text" v-model="taskData.task" class="list"  placeholder="create a new task"/></div> <!-- class:white -->
                             <button @click="addListTask()" >Add</button>
                         </div>
                         
-                        <div  class= "ListTask"  v-for="element in tasklist">
+                        <div  class= "ListTask"  v-for="element in taskList">
                             <p :class="element.status? 'color':''" >{{ element.task}}</p>
                             <input type="checkbox"  :checked="element.status!=element.status" @input="updateStatus(element)"  title="task finished" v-model="element.status">
                             <div class="line"><input class="date" v-model="element.date" type="date"><Save title="save" @click="updateDate(element)"></Save></div>
@@ -37,7 +37,7 @@
             </section>
             <div class="filter">
                 <p class="green" @click="filterTask(ListTask)"><star/>show completed tasks</p>
-                <p class="red" @click="initialiseListTask(ListTask)"><star class="red"/>show all</p>
+                <p class="red" @click="initialiseListTask()"><star class="red"/>show all</p>
             </div>
         </main>
         <footer>
@@ -60,49 +60,29 @@ import {useUserStore} from '@/stores/users'
 import router from '@/router'
 import { onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { supabase } from '@/lib/supabase';
 import type { ListTask } from "@/types/listTask";
-import { useAxios } from "@/composable/useAxios"
-
-const { data, vueConnectData } = storeToRefs(useUserStore())
-
-
-
 import http from '@/lib/http';
 import { useToast } from 'vue-toast-notification';
-
-const $toast = useToast()
-
+import clientHttp from '@/lib/clientHttp';
 const status=ref(false)
 const mode=ref('dark')
-const {filterTask, } = useListTaskStore()
+const $toast = useToast()
 
-const tasklist = ref(
-          {        
-            task:'',
-            status:'',
-            date:''
-          }      
-      ); 
-      async function initialiseListTask(){
-          const response = await useAxios().get('/todo/tasklist');
-          tasklist.value = response.data; 
-      }
-      initialiseListTask();
+const {addListTask,taskData,taskList,initialiseListTask } = useListTaskStore() 
 
-const task = ref('')
-      async function addListTask() {
-        try {
-            const data = {
-                task: task.value
-            };
-            await useAxios().post('/todo/sendtask', data);
-            console.log(data);
-          }
-          catch (error) {
-              console.log("Erreur d'envoi : " + error);
-          }
-      };
+const { signOut } = useUserStore()
+onMounted(() => {
+    signOut
+})
+         
+onMounted(() => {
+    addListTask
+})
+
+onMounted(() => {
+    initialiseListTask
+})
+ 
 
 
 function updateDate(element:ListTask){
@@ -143,21 +123,7 @@ function deleteTask(element:ListTask){
     Delete()
 }
 
-async function signOut(){
-    const{error}= await supabase.auth.signOut()
-    if(error){
-    console.log('vous voulez vous déconnecter')
-    }
-    else{
-        router.replace('/')
-    }
-}
 
-const ListTask=ref<ListTask>({
-    task:'',
-    status:false,
-    date: new Date,
-})
 </script>
 
 <style scoped>

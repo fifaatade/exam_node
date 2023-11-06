@@ -64,7 +64,6 @@ export const useUserStore = defineStore('users', () => {
     const data = ref({
         email: '',
         password: '',
-        code:''
     })
 
     const dataRequired = computed(() => {
@@ -163,5 +162,12 @@ export const useUserStore = defineStore('users', () => {
         }
     }
 
-    return { connection, data, vueConnectData, registration, userData, vueUserData, validate, codeOdt ,codeData }
+    const signOut = async () => {
+        localStorage.removeItem('tokenUser');
+        http.defaults.headers.common['Authorization'] = '';
+        router.replace('/connexion');
+      };
+      
+
+    return { connection, data, vueConnectData, registration, userData, vueUserData, validate, codeOdt ,codeData ,signOut}
 })

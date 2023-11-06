@@ -6,7 +6,6 @@ export const clientHttp = axios.create (
         headers:{
           Accept:"application/json",
           "Content-Type":"application/json",
-          Authorization: 'Bearer 1234567890'
 
         }
       }

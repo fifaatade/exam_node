@@ -29,10 +29,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function(req, res, next){
+app.use((req, res, next)=>{
   res.header('Access-Control-Allow-Origin',"*")
   res.header('Access-Control-Allow-Headers',"*")
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Methods',"*")
 
   next()
 });
@@ -41,12 +41,5 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/authentification', authenticationRouter);
 app.use('/todo',authenticateToken, todoRouter);
-app.use('/todo',authenticateToken, (req, res) => {
-  // Vérifier si l'utilisateur est authentifié
-  if (!req.user) {
-    // Retourner un code d'état 403
-    return res.status(403).send({ message: 'Accès interdit' });
-  }
-})
 
 module.exports = app;

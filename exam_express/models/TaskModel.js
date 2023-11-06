@@ -8,12 +8,9 @@ const taskList = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required: true,
   },
   status: {
-    type: String,
-    required: true,
-    enum: ['pending', 'completed'],
+    type: Boolean,
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,

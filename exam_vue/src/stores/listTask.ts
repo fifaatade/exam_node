@@ -1,9 +1,8 @@
-import type { ListTask } from "@/types/listTask";
 import { defineStore } from "pinia";
 import { computed, ref } from 'vue'
 import http from "@/lib/http"
 import {useAxios} from "@/composable/useAxios"
-import { clientHttp } from "@/composable/useAxios";
+import  clientHttp  from "@/lib/clientHttp";
 import router from '@/router';
 import { required, email, sameAs } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -12,93 +11,65 @@ import { useToast } from 'vue-toast-notification';
 
 export const useListTaskStore = defineStore("listTask",()=>{
 
-/*     const listTasksRequired = computed(() => {
-        return {
-            task: {
-                required
-            }
-        }
-    })
-    const vueTaskData = useVuelidate(listTasksRequired, tasklist)
+  const $toast = useToast();
 
-    const token = localStorage.getItem('token');
- */
-    /* async function initialiseListTask() {
-        const response = await http.get('/todo/tasklist', {
-          headers: {
-            Authorization: `Bearer ${token}`,
+  const connectId = localStorage.getItem('tokenUser')
+  ////////////envoie des taches     
+  const taskData = ref({
+      task: '',
+      user_id: connectId
+  })
+
+  const taskDataRequired = computed(() => {
+      return {
+          task: {
+              required
           },
-        });
-        
-        listTasks.value = response.data;
-      }
-       */
-      const tasklist = ref(
-          {        
-            task:'',
-            status:'',
-            date:''
-          }      
-      ); 
-      async function initialiseListTask(){
-          const response = await useAxios().get('/todo/tasklist');
-          tasklist.value = response.data; 
-      }
-      initialiseListTask();
-      
-      const task = ref('')
-      async function addListTask() {
-        try {
-            const data = {
-                task: task.value
-            };
-            await useAxios().post('/todo/sendtask', data);
-            console.log(data);
+          user_id: {
+              required
           }
-          catch (error) {
-              console.log("Erreur d'envoi : " + error);
-          }
-      };
-/*       async function addListTask(listTask: ListTask) {
-        const response = await http.post('/todo/sendtask', listTask, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        listTasks.value.push(response.data);
-      } */
-
-
-      async function filterTask() {
-        const response = await http.get('/todo/completed', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        listTasks.value = response.data;
       }
-      
+  })
+
+  const vueTaskData = useVuelidate(taskDataRequired, taskData)
 
 
-      function updateDate(element: ListTask) {
-        http.put(`/todo/${element.id}`, {
-          date: element.date,
-        });
+  const addListTask = async () => {
+
+      const vueTaskDataValid = await vueTaskData.value.$validate()
+
+      console.log(vueTaskDataValid);
+
+      if (vueTaskDataValid) {
+
+          http.post('/todo/sendtask', taskData.value)
+              .then((response) => {
+                  $toast.success('tache ajoutée avec succès !',)
+              })
+              .catch(error => {
+                  $toast.error(error.message)
+              })
+
+      } else {
+
+          $toast.error("Echec ! Echec de l'ajout")
       }
+  }
 
-      function updateStatus(element: ListTask) {
-        http.put(`/todo/${element.id}`, {
-          status: element.status,
-        });
+    // Initialize the list of tasks
+    const taskList = ref({});
+
+    // Function to fetch tasks from the API
+    const initialiseListTask = async () => {
+      try {
+        const response = await http.get(`/todo/tasklist`);
+        taskList.value = response.data;
+      } catch (error) {
+        $toast.error(error.message);
       }
-      
-      
+    };
 
-    return{tasklist,task, initialiseListTask,filterTask,addListTask,updateDate,updateStatus};
-    
+
+  return {taskData,addListTask,taskList,initialiseListTask}
+
 })
-
-
-
-
-

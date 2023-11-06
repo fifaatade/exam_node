@@ -4,46 +4,78 @@ var db =require('../config/database');
 var authenticateToken= require('../middleware/auth')
 
 const index = async (req, res) => {
-    /* const userId = req.user._id;
-    const taks = await db.collection('taskList').find({ user_id: userId }).toArray();
-    res.send(taks); */
-    const tasks = await TaskModel.find();
+    const tasks = await TaskModel.find({});
     res.status(200).json(tasks);
 
   };
   
 
-/* const store = async (req, res) => {
-  try {
-    const task = req.body;
-
-    if (!task ) {
-      return res.status(400).json({ error: "Veuillez remplir le champs" });
-    }
-    const newTask = await TaskModel.create(task);
-
-    await DB.collection("taskList").insertOne(newTask);
-    console.log('tache ajouté avec succès');
-    res.status(200).json({ message: 'tache ajouté' });
-  } catch (error) {
-    console.error("Erreur lors de l'ajout de la tache", error);
-    res.status(500).json({ error: "Erreur lors de l'ajout de la tache" });
-  }
-} */
 const store = async (req, res) => {
-  const task = req.body;
-
-  // Check the authorization header
-  const token = req.headers['Authorization'];
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
+  const taskData = new TaskModel({
+    task: req.body.task,
+    date: null,
+    status: 0,
+    user_id: req.body.user_id //"6543749239f25dae0677d6eb" 
+  });
 
   // Save the task to the database
-  const newTask = await TaskModel.create(task);
+  const taskSave = await taskData.save()
 
   // Respond with the newly created task
-  res.status(201).json(newTask);
+  res.status(201).json(taskData);
 }
 
-module.exports = {index,store}
+const updateStatus =async(req,res) =>{
+  const id = req.params.id;
+  const taskData = await TaskModel.findOne({ id });
+
+  // Vérifiez que la tâche existe
+  if (!taskData) {
+    return res.status(404).json({ message: 'La tâche n\'existe pas' });
+  }
+
+  // Modifiez le statut de la tâche
+  taskData.status = req.body.status;
+
+  // Enregistrez la tâche
+  await TaskModel.updateOne({ id }, { status: taskData.status });
+  return res.json({ task: taskData });
+}
+
+
+
+const updateDate = async (req, res) => {
+  const id = req.params.id;
+  const taskData = await TaskModel.findOne({ id });
+
+  // Vérifiez que la tâche existe
+  if (!taskData) {
+    return res.status(404).json({ message: 'La tâche n\'existe pas' });
+  }
+
+  // Vérifiez que la date est valide
+  const date = new Date(req.body.date);
+  if (!date) {
+    return res.status(400).json({ message: 'La date n\'est pas valide' });
+  }
+
+  // Modifiez la date de la tâche
+  taskData.date = req.body.date;
+
+  // Enregistrez la tâche
+  await TaskModel.updateOne({ id }, { date: taskData.date });
+  return res.json({ task: taskData });
+};
+
+const filterTask = async (req, res) => {
+  // Obtenez la liste des tâches
+  const tasks = await TaskModel.find({ status: true });
+
+  // Retournez la liste des tâches filtrées
+  res.json(tasks);
+};
+
+
+module.exports = {index,store,updateStatus,updateDate,filterTask}
+
+
