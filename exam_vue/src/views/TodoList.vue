@@ -22,11 +22,13 @@
                 <div class="container">
                     <div class="toDoList-content">
                         <div class="to-do-list">
-                            <div class="input"><input type="text" v-model="taskData.task" class="list"  placeholder="create a new task"/></div> <!-- class:white -->
+                            <div class="input">
+                                <input type="text" v-model="taskData.task" class="list"  placeholder="create a new task"/>
+                            </div> <!-- class:white -->
                             <button @click="addListTask()" >Add</button>
                         </div>
                         
-                        <div  class= "ListTask"  v-for="element in taskList">
+                        <div class="ListTask" v-for="element in taskList" >
                             <p :class="element.status? 'color':''" >{{ element.task}}</p>
                             <input type="checkbox"  :checked="element.status!=element.status" @input="updateStatus(element)"  title="task finished" v-model="element.status">
                             <div class="line"><input class="date" v-model="element.date" type="date"><Save title="save" @click="updateDate(element)"></Save></div>
@@ -36,7 +38,7 @@
                 </div>
             </section>
             <div class="filter">
-                <p class="green" @click="filterTask(ListTask)"><star/>show completed tasks</p>
+                <p class="green" @click="filterTask()"><star/>show completed tasks</p>
                 <p class="red" @click="initialiseListTask()"><star class="red"/>show all</p>
             </div>
         </main>
@@ -54,13 +56,10 @@ import Save from '@/components/icons/Save.vue'
 import Sun from '@/components/icons/Sun.vue'
 import Star from '@/components/icons/Star.vue'
 import { useLocalStorage } from "@vueuse/core"
-import {defineStore} from "pinia"
 import { useListTaskStore } from "@/stores/listTask";
 import {useUserStore} from '@/stores/users'
-import router from '@/router'
 import { onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import type { ListTask } from "@/types/listTask";
 import http from '@/lib/http';
 import { useToast } from 'vue-toast-notification';
 import clientHttp from '@/lib/clientHttp';
@@ -68,7 +67,7 @@ const status=ref(false)
 const mode=ref('dark')
 const $toast = useToast()
 
-const {addListTask,taskData,taskList,initialiseListTask } = useListTaskStore() 
+const {taskData,addListTask,taskList,initialiseListTask,updateDate,updateStatus,deleteTask,filterTask}= useListTaskStore() 
 
 const { signOut } = useUserStore()
 onMounted(() => {
@@ -83,46 +82,21 @@ onMounted(() => {
     initialiseListTask
 })
  
+onMounted(() => {
+    updateDate
+})
 
+onMounted(() => {
+    updateStatus
+})
 
-function updateDate(element:ListTask){
-    console.log('ok');
-    
-    async function Date(){
-        const {error}= await supabase
-        .from("TaskList")
-        .update({date:element.date})
-        .eq('id',element.id);
-        
-    }
+onMounted(() => {
+    deleteTask
+})
 
-    Date()
-}
-
-function updateStatus(element:ListTask){
-    console.log('ok');
-    
-    async function Status(){
-        const {error}= await supabase
-        .from("TaskList")
-        .update({status:element.status})
-        .eq('id',element.id);
-        
-    }
-
-    Status()
-}
-function deleteTask(element:ListTask){
-    console.log('supprimer')
-    async function Delete() {
-        const {error} = await supabase
-        .from("TaskList")
-        .delete()
-        .eq('id',element.id)
-    }
-    Delete()
-}
-
+onMounted(() => {
+    filterTask
+})
 
 </script>
 

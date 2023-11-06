@@ -75,7 +75,29 @@ const filterTask = async (req, res) => {
   res.json(tasks);
 };
 
+const deleteTask = async (req, res) => {
+  // Obtenez l'ID de la tâche à supprimer
+  const taskId = req.params.id;
 
-module.exports = {index,store,updateStatus,updateDate,filterTask}
+  // Vérifiez si la tâche existe
+  const task = await TaskModel.findOne({ _id: taskId });
+
+  // Si la tâche n'existe pas, renvoyez une erreur
+  if (!task) {
+    return res.status(404).json({ message: "Tâche introuvable" });
+  }
+
+  // Supprimez la tâche
+  await task.remove();
+
+  // Retournez une réponse de succès
+  res.status(200).json({ message: "Tâche supprimée avec succès" });
+};
+
+
+
+
+
+module.exports = {index,store,updateStatus,updateDate,filterTask,deleteTask}
 
 

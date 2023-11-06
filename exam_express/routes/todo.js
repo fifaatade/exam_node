@@ -10,5 +10,6 @@ router.post('/sendtask',todoController.store);
 router.post('/completedtask',todoController.updateStatus);
 router.post('/addDate',todoController.updateDate);
 router.get('/filter',todoController.filterTask);
+router.post('/delete',todoController.deleteTask);
 
 module.exports = router;

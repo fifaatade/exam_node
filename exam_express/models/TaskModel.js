@@ -13,9 +13,10 @@ const taskList = new mongoose.Schema({
     type: Boolean,
   },
   user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'users',
+    //type: mongoose.Schema.Types.ObjectId,
+    type: Number,
+    required: true
+    //ref: 'users',
   },
 });
 
