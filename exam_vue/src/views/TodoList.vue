@@ -21,25 +21,26 @@
             <section class="toDoList">
                 <div class="container">
                     <div class="toDoList-content">
-                        <div class="to-do-list">
+                       <form class="to-do-list" @submit.prevent="addListTask">
                             <div class="input">
                                 <input type="text" v-model="taskData.task" class="list"  placeholder="create a new task"/>
-                            </div> <!-- class:white -->
-                            <button @click="addListTask()" >Add</button>
-                        </div>
+                            </div> 
+                            <button type="submit" >Add</button>
+                        </form> 
                         
-                        <div class="ListTask" v-for="element in taskList" >
+                        <div class="ListTask" v-for="(element,index) in taskList"  :key="index">
                             <p :class="element.status? 'color':''" >{{ element.task}}</p>
-                            <input type="checkbox"  :checked="element.status!=element.status" @input="updateStatus(element)"  title="task finished" v-model="element.status">
+                            <input type="checkbox"  :checked="element.status!=element.status" @input="updateStatus(element)"  v-model="element.status">
                             <div class="line"><input class="date" v-model="element.date" type="date"><Save title="save" @click="updateDate(element)"></Save></div>
-                            <Trash  @click="deleteTask(element)"></Trash>
-                        </div>
+                            <Trash ></Trash> 
+                        </div> 
+                        
                     </div>
                 </div>
             </section>
             <div class="filter">
                 <p class="green" @click="filterTask()"><star/>show completed tasks</p>
-                <p class="red" @click="initialiseListTask()"><star class="red"/>show all</p>
+                <p class="red" @click="initialiseListTask"><star class="red"/>show all</p>
             </div>
         </main>
         <footer>
@@ -63,8 +64,10 @@ import { storeToRefs } from 'pinia';
 import http from '@/lib/http';
 import { useToast } from 'vue-toast-notification';
 import clientHttp from '@/lib/clientHttp';
-const status=ref(false)
-const mode=ref('dark')
+const mode =useLocalStorage('mode',{})
+mode.value='dark'
+
+//const mode=ref('dark')
 const $toast = useToast()
 
 const {taskData,addListTask,taskList,initialiseListTask,updateDate,updateStatus,deleteTask,filterTask}= useListTaskStore() 
@@ -79,20 +82,20 @@ onMounted(() => {
 })
 
 onMounted(() => {
-    initialiseListTask
+    initialiseListTask()
 })
  
 onMounted(() => {
-    updateDate
+    updateDate()
 })
 
 onMounted(() => {
-    updateStatus
+    updateStatus()
 })
 
-onMounted(() => {
-    deleteTask
-})
+/* onMounted(() => {
+    deleteTask()
+}) */
 
 onMounted(() => {
     filterTask

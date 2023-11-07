@@ -12,12 +12,17 @@ import { useToast } from 'vue-toast-notification';
 export const useListTaskStore = defineStore("listTask",()=>{
 
   const $toast = useToast();
-
-  const connectId = localStorage.getItem('tokenUser')
+  function getRandomCode(){
+      const min= 1000
+      const max= 9999
+      return Math.floor(Math.random() * (max - min + 1))  
+  }
+  getRandomCode()
+  const connectId=getRandomCode()
   ////////////envoie des taches     
   const taskData = ref({
       task: '',
-      user_id: connectId
+      user_id:connectId
   })
 
   const taskDataRequired = computed(() => {
@@ -42,9 +47,9 @@ export const useListTaskStore = defineStore("listTask",()=>{
 
       if (vueTaskDataValid) {
 
-          http.post('/todo/sendtask', taskData.value)
+          http.post('/todo/sendtask',taskData.value)
               .then((response) => {
-                  $toast.success('tache ajoutée avec succès !',)
+                  $toast.success('tache ajoutée avec succès !')
               })
               .catch(error => {
                   $toast.error(error.message)
@@ -57,23 +62,24 @@ export const useListTaskStore = defineStore("listTask",()=>{
   }
 
     // Initialize the list of tasks
-    const taskList = ref({});
+    const taskList = ref([])
 
     // Function to fetch tasks from the API
     const initialiseListTask = async () => {
       try {
-        const response = await http.get(`/todo/tasklist`);
+        const response = await http.get('/todo/tasklist');
         taskList.value = response.data;
+        console.log(taskList)
       } catch (error) {
         $toast.error(error.message);
       }
     };
-
+const task = ref({})
 // Function to update the date of a task
-const updateDate = async (task) => {
+const updateDate = async () => {
   try {
     await http.post(`/todo/addDate`, {
-      date: task.date,
+      date: taskList.date,
     });
     $toast.success('Date de la tâche mise à jour avec succès!');
   } catch (error) {
@@ -82,10 +88,10 @@ const updateDate = async (task) => {
 };
 
 // Function to update the status of a task
-const updateStatus = async (task) => {
+const updateStatus = async () => {
   try {
     await http.post(`/todo/completedtask`, {
-      status: !task.status,
+      status: !taskList.status,
     });
     $toast.success('Statut de la tâche mis à jour avec succès!');
   } catch (error) {
@@ -93,8 +99,17 @@ const updateStatus = async (task) => {
   }
 };
 
+  const filterTask = async () => {
+    try {
+      const response = await http.get(`/todo/filter`);
+      taskList.value = response.data;
+    } catch (error) {
+      $toast.error(error.message);
+    }
+  };
+  
 // Function to delete a task
-const deleteTask = async (task) => {
+const deleteTask = async () => {
   try {
     await http.post(`/todo/delete`);
     $toast.success('Tâche supprimée avec succès!');
@@ -104,17 +119,6 @@ const deleteTask = async (task) => {
     $toast.error(error.message);
   }
 };
-
-
-  const filterTask = async (status) => {
-    try {
-      const response = await http.get(`/todo/filter`);
-      taskList.value = response.data;
-    } catch (error) {
-      $toast.error(error.message);
-    }
-  };
-  
 
   return {taskData,addListTask,taskList,initialiseListTask,updateDate,updateStatus,deleteTask,filterTask}
 

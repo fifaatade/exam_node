@@ -92,9 +92,14 @@ const validate = async (req, res, next) => {
     }
 }
 
+const userData = async (req, res, next) => {
+    res.send(req.user)
+}
+
 
 module.exports = {
     registration,
     connection,
-    validate
+    validate,
+    userData
 }

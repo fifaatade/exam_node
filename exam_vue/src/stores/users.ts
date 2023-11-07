@@ -5,6 +5,7 @@ import router from '@/router';
 import { required, email, sameAs } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { useToast } from 'vue-toast-notification';
+import { useLocalStorage } from "@vueuse/core";
 
 export const useUserStore = defineStore('users', () => {
     const $toast = useToast();
@@ -79,7 +80,7 @@ export const useUserStore = defineStore('users', () => {
     })
 
     const vueConnectData = useVuelidate(dataRequired, data)
-
+    const login =useLocalStorage('login',{})
     const connection = async () => {
         const vueConnectValid = await vueConnectData.value.$validate()
         console.log(vueConnectValid)
@@ -93,6 +94,7 @@ export const useUserStore = defineStore('users', () => {
                 console.log('accessToken', accessToken);
                 http.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
                 localStorage.setItem('tokenUser', accessToken);
+                login.value=true
                 router.replace('/todo');
             })
             .catch(error => {
@@ -101,6 +103,8 @@ export const useUserStore = defineStore('users', () => {
                     // Extrait le message d'erreur de la réponse.
                     const errorResponse = error.response.data
                     $toast.error(errorResponse)
+                    login.value=false
+
 
                 } else {
                     $toast.error(error.message)
@@ -165,6 +169,7 @@ export const useUserStore = defineStore('users', () => {
     const signOut = async () => {
         localStorage.removeItem('tokenUser');
         http.defaults.headers.common['Authorization'] = '';
+        login.value=false
         router.replace('/connexion');
       };
       

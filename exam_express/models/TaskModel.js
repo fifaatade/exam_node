@@ -4,20 +4,19 @@ const taskList = new mongoose.Schema({
   task: {
     type: String,
     required: true,
-    unique: true,
   },
   date: {
     type: Date,
+    required:false
   },
   status: {
     type: Boolean,
+    required:false
   },
   user_id: {
-    //type: mongoose.Schema.Types.ObjectId,
     type: Number,
-    required: true
-    //ref: 'users',
+    required: true,
   },
 });
 
-module.exports = mongoose.model('taskList', taskList);
+module.exports = mongoose.model('tasklists', taskList);

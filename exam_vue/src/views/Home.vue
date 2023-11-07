@@ -18,12 +18,6 @@ import { useRouter } from 'vue-router';
     height: 100vh;
     overflow-y: hidden;
 }
-h1{
-    color: rgb(116, 75, 75);
-    text-align: center;
-    letter-spacing: 5px;
-    padding-top: 4%;
-}
 .connexion-link{
     display: flex;
     justify-content: center;

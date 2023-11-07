@@ -5,8 +5,7 @@ import axios from "axios"
         baseURL: 'http://localhost:3007/', 
         headers:{
           Accept:"application/json",
-          "Content-Type":"*"
-
+          "Content-Type":"application/json"
         }
       }
   )

@@ -6,6 +6,9 @@ import Inscription from '@/views/Inscription.vue'
 import { useUserStore } from '@/stores/users'
 import Home from '@/views/Home.vue'
 import { storeToRefs } from 'pinia'
+import { useLocalStorage } from '@vueuse/core'
+const login =useLocalStorage('login',{})
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -33,6 +36,13 @@ const router = createRouter({
       path: '/todo',
       name: 'todo',
       component:TodoList,
+      beforeEnter:(to, from, next) =>{
+        if(login.value==true){
+          next()
+        }else{
+          next('/connexion')
+        }
+      }
     },
   ]
 })

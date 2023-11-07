@@ -14,8 +14,8 @@ const store = async (req, res) => {
   const taskData = new TaskModel({
     task: req.body.task,
     date: null,
-    status: 0,
-    user_id: req.body.user_id //"6543749239f25dae0677d6eb" 
+    status: false,
+    user_id:1//"6543749239f25dae0677d6eb" 
   });
 
   // Save the task to the database
