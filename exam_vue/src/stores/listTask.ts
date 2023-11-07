@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import http from "@/lib/http"
 import {useAxios} from "@/composable/useAxios"
 import  clientHttp  from "@/lib/clientHttp";
@@ -12,25 +12,26 @@ import { useToast } from 'vue-toast-notification';
 export const useListTaskStore = defineStore("listTask",()=>{
 
   const $toast = useToast();
-  function getRandomCode(){
-      const min= 1000
-      const max= 9999
-      return Math.floor(Math.random() * (max - min + 1))  
-  }
-  getRandomCode()
-  const connectId=getRandomCode()
-  ////////////envoie des taches     
-  const taskData = ref({
-      task: '',
-      user_id:connectId
-  })
+/*   const userId = ref();
+
+async function getUserId() {
+  const response = await http.get('/authentification/user');
+  return response.data;
+}
+
+function mounted() {
+  userId.value = await getUserId();
+}
+ */
+const taskData = ref({
+  task: '',
+});
+
+
 
   const taskDataRequired = computed(() => {
       return {
           task: {
-              required
-          },
-          user_id: {
               required
           }
       }

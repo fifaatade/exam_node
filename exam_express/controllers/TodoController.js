@@ -15,7 +15,7 @@ const store = async (req, res) => {
     task: req.body.task,
     date: null,
     status: false,
-    user_id:1//"6543749239f25dae0677d6eb" 
+    user_id: 1
   });
 
   // Save the task to the database
@@ -93,8 +93,6 @@ const deleteTask = async (req, res) => {
   // Retournez une réponse de succès
   res.status(200).json({ message: "Tâche supprimée avec succès" });
 };
-
-
 
 
 

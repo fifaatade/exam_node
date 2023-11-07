@@ -8,7 +8,7 @@ const authenticationController = require('../controllers/AuthentificationControl
 router.post('/signup', authenticationController.registration)
 router.post('/signin', authenticationController.connection)
 router.post('/validate', authenticationController.validate)
-router.get('/user',authenticateToken, authenticationController.userData)
+router.get('/user', authenticateToken,authenticationController.userData)
 
 
 module.exports = router;

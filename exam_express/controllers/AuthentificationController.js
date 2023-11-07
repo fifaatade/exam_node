@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const Mail = require('../facades/Mail')
+var authenticateToken= require('../middleware/auth')
+
 
 
 const registration = async (req, res, next) => {
@@ -93,7 +95,7 @@ const validate = async (req, res, next) => {
 }
 
 const userData = async (req, res, next) => {
-    res.send(req.user)
+    res.send(req.user._id)
 }
 
 

@@ -7,16 +7,17 @@ const taskList = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required:false
   },
   status: {
     type: Boolean,
-    required:false
   },
   user_id: {
-    type: Number,
+    //type: mongoose.Schema.Types.ObjectId,
     required: true,
+    type: Number
+    //ref: 'users'
   },
+
 });
 
-module.exports = mongoose.model('tasklists', taskList);
+module.exports = mongoose.model('taskLists', taskList);
