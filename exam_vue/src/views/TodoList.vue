@@ -32,7 +32,7 @@
                             <p :class="element.status? 'color':''" >{{ element.task}}</p>
                             <input type="checkbox"  :checked="element.status!=element.status" @input="updateStatus(element)"  v-model="element.status">
                             <div class="line"><input class="date" v-model="element.date" type="date"><Save title="save" @click="updateDate(element)"></Save></div>
-                            <Trash ></Trash> 
+                            <Trash @click="deleteTask(element)"></Trash> 
                         </div> 
                         
                     </div>
@@ -59,7 +59,7 @@ import Star from '@/components/icons/Star.vue'
 import { useLocalStorage } from "@vueuse/core"
 import { useListTaskStore } from "@/stores/listTask";
 import {useUserStore} from '@/stores/users'
-import { onMounted, ref } from 'vue';
+import { onMounted, ref ,computed} from 'vue';
 import { storeToRefs } from 'pinia';
 import http from '@/lib/http';
 import { useToast } from 'vue-toast-notification';
@@ -67,39 +67,121 @@ import clientHttp from '@/lib/clientHttp';
 const mode =useLocalStorage('mode',{})
 mode.value='dark'
 
-//const mode=ref('dark')
 const $toast = useToast()
 
-const {taskData,addListTask,taskList,initialiseListTask,updateDate,updateStatus,deleteTask,filterTask}= useListTaskStore() 
+//const {taskData,addListTask,taskList,initialiseListTask,updateDate,updateStatus,deleteTask,filterTask}= useListTaskStore() 
 
 const { signOut } = useUserStore()
 onMounted(() => {
     signOut
 })
          
-onMounted(() => {
-    addListTask
-})
 
-onMounted(() => {
-    initialiseListTask()
-})
+
+import { defineStore } from "pinia";
+import {useAxios} from "@/composable/useAxios"
+import router from '@/router';
+import { required, email, sameAs } from "@vuelidate/validators";
+import useVuelidate from "@vuelidate/core";
+import axios from 'axios'
+
+
+
+const taskData = ref({
+  task: '',
+});
+
+
+
+  const taskDataRequired = computed(() => {
+      return {
+          task: {
+              required
+          }
+      }
+  })
+
+  const vueTaskData = useVuelidate(taskDataRequired, taskData)
+
+
+  const addListTask = async () => {
+
+      const vueTaskDataValid = await vueTaskData.value.$validate()
+
+      console.log(vueTaskDataValid);
+
+      if (vueTaskDataValid) {
+
+          http.post('/todo/sendtask',taskData.value)
+              .then((response) => {
+                  $toast.success('tache ajoutée avec succès !')
+              })
+              .catch(error => {
+                  $toast.error(error.message)
+              })
+
+      } else {
+
+          $toast.error("Echec ! Echec de l'ajout")
+      }
+  }
+
+    // Initialize the list of tasks
+    const taskList = ref([])
+
+    // Function to fetch tasks from the API
+    const initialiseListTask = async () => {
+      try {
+        const response = await http.get('/todo/tasklist');
+        taskList.value = response.data;
+        console.log(taskList)
+      } catch (error) {
+        $toast.error(error.message);
+      }
+    };
+const task = ref({})
+// Function to update the date of a task
+const updateDate = async () => {
+  try {
+    await http.post(`/todo/addDate`, {
+      date: taskList.date,
+    });
+    $toast.success('Date de la tâche mise à jour avec succès!');
+  } catch (error) {
+    $toast.error(error.message);
+  }
+};
+
+// Function to update the status of a task
+const statusData = ref(true)
+
+const updateStatus = async () => {
+  try {
+    await http.post(`/todo/completedtask`, {
+      status: statusData.value
+    });
+    $toast.success('Statut de la tâche mis à jour avec succès!');
+  } catch (error) {
+    $toast.error(error.message);
+  }
+};
+
+  const filterTask = async () => {
+    try {
+      const response = await http.get(`/todo/filter`);
+      taskList.value = response.data;
+    } catch (error) {
+      $toast.error(error.message);
+    }
+  };
+
+  function deleteTask(element){
+    /* console.log(element) */
+    const index= taskList.value.findIndex((item)=>item.task==element.task)
+    if(index!==-1)
+    taskList.value.splice(index,1)
+}
  
-onMounted(() => {
-    updateDate()
-})
-
-onMounted(() => {
-    updateStatus()
-})
-
-/* onMounted(() => {
-    deleteTask()
-}) */
-
-onMounted(() => {
-    filterTask
-})
 
 </script>
 

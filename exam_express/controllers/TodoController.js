@@ -35,7 +35,7 @@ const updateStatus =async(req,res) =>{
   }
 
   // Modifiez le statut de la tâche
-  taskData.status = req.body.status;
+  taskData.status= true;
 
   // Enregistrez la tâche
   await TaskModel.updateOne({ id }, { status: taskData.status });
